@@ -1,11 +1,25 @@
 import React, { Component } from 'react';
-import BookMarksContext from '../BookmarksContext'
+import PropTypes from 'prop-types';
+import BookmarksContext from '../BookmarksContext';
 import BookmarkItem from '../BookmarkItem/BookmarkItem';
 import './BookmarkList.css'
-import BookmarksContext from '../BookmarksContext';
-import PropTypes from 'prop-types';
 
 class BookmarkList extends Component {
+  static proptTypes = {
+    bookmarks: PropTypes.arrayOf(
+      PropTypes.shape({
+        id: PropTypes.oneOfType([
+          PropTypes.number,
+          PropTypes.string,
+        ]).isRequired,
+      })
+    )
+  };
+
+  static defaultProps = {
+    bookmarks: []
+  };
+
   static contextType = BookmarksContext;
 
   render() {
@@ -27,12 +41,3 @@ class BookmarkList extends Component {
 }
 
 export default BookmarkList;
-
-BookmarkList.propTypes = {
-  bookmarks: PropTypes.arrayOf(PropTypes.shape({
-    title: PropTypes.string.isRequired,
-    url: PropTypes.string.isRequired,
-    rating: PropTypes.number,
-    description: PropTypes.string
-  }))
-};

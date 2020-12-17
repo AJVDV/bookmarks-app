@@ -1,11 +1,12 @@
-import React, { PureComponent } from 'react';
+import React from 'react';
+import {Link} from 'react-router-dom';
 import Rating from '../Rating/Rating';
 import BookmarksContext from '../BookmarksContext';
 import config from '../config'
 import './BookmarkItem.css';
 import PropTypes from 'prop-types';
 
-function deleteBookmarkRequest(bookmarkId, callback) {
+function deleteBookmarkRequest(bookmarkId, cb) {
   fetch(config.API_ENDPOINT + `/${bookmarkId}`, {
     method: 'DELETE',
     headers: {
@@ -15,17 +16,14 @@ function deleteBookmarkRequest(bookmarkId, callback) {
     .then(res => {
       if (!res.ok) {
         // get the error message from the response,
-        return res.json().then(error => {
-          // then throw it
-          throw error
-        })
-      }
+        return res.json().then(error => Promise.reject(error))
+        }
       return res.json()
     })
     .then(data => {
       // call the callback when the request is successful
       // this is where the App component can remove it from state
-      callback(bookmarkId)
+      cb(bookmarkId)
     })
     .catch(error => {
       console.error(error)
@@ -52,6 +50,10 @@ export default function BookmarkItem(props) {
             {props.description}
           </p>
           <div className='BookmarkItem__buttons'>
+            <Link to={`/edit/${props.id}`}>
+              Edit
+            </Link>
+            {' '}
             <button
               className='BookmarkItem__description'
               onClick={() => {
@@ -72,32 +74,16 @@ export default function BookmarkItem(props) {
 
 BookmarkItem.defaultProps = {
   onClickDelete: () => {},
-  rating: 1,
-  description: ""
 }
 
 BookmarkItem.propTypes = {
+  id: PropTypes.oneOfType([
+    PropTypes.number,
+    PropTypes.string,
+  ]).isRequired,
   title: PropTypes.string.isRequired,
-  url: (props, propName, componentName) => {
-    //get the value of the prop
-    const prop = props[propName];
-
-    //do the isRequired check
-    if(!prop) {
-      return new Error(`${propName} is required in ${componentName}. Validation Failed`);
-    }
-
-    //check the type
-    if (typeof prop != 'string') {
-      return new Error(`Invalid prop, ${propName} is expected to be a string in ${componentName}. ${typeof prop} found.`);
-    }
-
-    //do the custom check here
-    //usijng a simple regex
-    if (prop.length < 5 || !prop.match(new RegExp(/^https:?\/\//))) {
-      return new Error(`Invalid prop, ${propName} must be min length 5 and begin http(s)://. Validation failed.`);
-    }
-  },
-  rating: PropTypes.number,
-  description: PropTypes.string
+  url: PropTypes.string.isRequired,
+  desciption: PropTypes.string,
+  rating: PropTypes.number.isRequired,
+  onClickDelete: PropTypes.func,
 }
